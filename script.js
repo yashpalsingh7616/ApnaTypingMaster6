@@ -11,99 +11,69 @@ const adminHindi = [
 
 // --- VARIABLES ---
 let timer;
-let maxTime = 300; // 5 Minutes default
-let timeLeft = maxTime;
+let timeLeft = 300;
 let isStarted = false;
 let backspaceCount = 0;
-let totalKeystrokes = 0;
-let correctWordsCount = 0;
-let wrongWordsCount = 0;
-
-let passageWords = [];
 let currentWordIndex = 0;
-let currentLanguage = 'en'; // 'en' or 'hi'
-let candidateName = "User";
+let passageWords = [];
+let currentLanguage = 'en';
+let totalKeystrokes = 0;
+let correctWords = 0;
 
-// --- NAVIGATION & LOGIN ---
+// --- NAVIGATION (NO RELOAD) ---
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+    document.getElementById(pageId).style.display = 'flex';
+}
+
 function handleLogin() {
-    const nameInput = document.getElementById('user-name').value;
-    if(!nameInput) return alert("Kripya apna naam likhein!");
-    
-    candidateName = nameInput;
-    // Result page par naam set kar dete hain abhi se
-    document.getElementById('res-candidate-name').innerText = candidateName;
-
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('selection-page').style.display = 'flex';
+    const name = document.getElementById('user-name').value;
+    if(!name) return alert("Enter Name");
+    document.getElementById('res-candidate-name').innerText = name;
+    showPage('selection-page');
 }
 
 function openModule(lang) {
     currentLanguage = lang;
-    document.getElementById('selection-page').style.display = 'none';
-    const pageId = lang === 'en' ? 'english-page' : 'hindi-page';
     const listId = lang === 'en' ? 'en-list' : 'hi-list';
     const data = lang === 'en' ? adminEnglish : adminHindi;
-    
-    document.getElementById(pageId).style.display = 'flex';
-    renderList(listId, data, lang);
+    renderList(listId, data);
+    showPage(lang === 'en' ? 'english-page' : 'hindi-page');
 }
 
-function renderList(listId, data, lang) {
-    const list = document.getElementById(listId);
-    list.innerHTML = data.map(p => `
-        <div class="p-item" onclick="startTyping(\`${p.text}\`)">
-            <div class="p-info">
-                <strong>${p.title}</strong>
-            </div>
-            <button class="select-btn">Select</button>
+function renderList(listId, data) {
+    document.getElementById(listId).innerHTML = data.map(p => `
+        <div style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;" onclick="startTyping(\`${p.text}\`)">
+            ${p.title} <button class="select-btn">Start</button>
         </div>
     `).join('');
 }
 
-// Custom Text Logic
-function startCustom(lang) {
-    currentLanguage = lang;
-    const inputId = lang === 'en' ? 'en-custom' : 'hi-custom';
-    const text = document.getElementById(inputId).value;
-    
-    if(text.trim().length < 10) return alert("Text bahut chhota hai. Thoda aur likhein.");
-    startTyping(text);
-}
+function backToLanguage() { showPage('selection-page'); }
+function backToPassageSelection() { clearInterval(timer); showPage(currentLanguage === 'en' ? 'english-page' : 'hindi-page'); }
+function goHome() { showPage('login-page'); }
 
-// --- TYPING CORE ---
+// --- TYPING ENGINE ---
 function startTyping(text) {
-    // Hide all pages, show typing page
-    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    document.getElementById('typing-page').style.display = 'flex';
-
-    // Reset All Variables
+    showPage('typing-page');
     clearInterval(timer);
-    timeLeft = 300; // Reset to 5 mins
+    timeLeft = 300;
     isStarted = false;
     backspaceCount = 0;
-    totalKeystrokes = 0;
-    correctWordsCount = 0;
-    wrongWordsCount = 0;
     currentWordIndex = 0;
-
-    // Reset UI
-    document.getElementById('back-count').innerText = "0";
-    document.getElementById('live-wpm').innerText = "0";
-    document.getElementById('timer').innerText = "05:00";
-    document.getElementById('typing-area').value = "";
-    document.getElementById('typing-area').disabled = false;
-    document.getElementById('typing-area').focus();
-
-    // Setup Text Display
-    const display = document.getElementById('text-display');
-    passageWords = text.trim().split(/\s+/);
-    display.innerHTML = passageWords.map(word => `<span class="word-span">${word}</span>`).join(' ');
+    correctWords = 0;
+    totalKeystrokes = 0;
     
-    // Highlight first word
+    passageWords = text.trim().split(/\s+/);
+    const display = document.getElementById('text-display');
+    display.innerHTML = passageWords.map(w => `<span class="word-span">${w}</span>`).join(' ');
     display.children[0].classList.add('current-word');
 
-    // Apply Fonts based on Language
     const area = document.getElementById('typing-area');
+    area.value = "";
+    area.disabled = false;
+    area.focus();
+
     if(currentLanguage === 'hi') {
         area.classList.add('hindi-font');
         display.classList.add('hindi-font');
@@ -111,65 +81,40 @@ function startTyping(text) {
         area.classList.remove('hindi-font');
         display.classList.remove('hindi-font');
     }
-    
-    // Engine Start
-    setupEngine();
+
+    setupEngine(area, display);
 }
 
-function setupEngine() {
-    const area = document.getElementById('typing-area');
-    const display = document.getElementById('text-display');
-
-    // Keydown for Backspace & Timer Start
+function setupEngine(area, display) {
     area.onkeydown = (e) => {
-        if (!isStarted) startTimer();
-        
-        if (e.key === 'Backspace') {
-            backspaceCount++;
-            document.getElementById('back-count').innerText = backspaceCount;
-        }
+        if(!isStarted) startTimer();
+        if(e.key === 'Backspace') backspaceCount++;
+        document.getElementById('back-count').innerText = backspaceCount;
     };
 
-    // Input Handling
-    area.oninput = (e) => {
-        const value = area.value;
-        
-        // Count Keystrokes (Gross speed ke liye)
-        // Note: Hum sirf length check kar rahe hain growth ki
-        totalKeystrokes++; 
-
-        const currentSpan = display.children[currentWordIndex];
-        const currentWordText = passageWords[currentWordIndex];
-
-        // Word Match Logic (Space dabane par)
-        if (value.endsWith(' ')) {
-            const inputWord = value.trim();
+    area.oninput = () => {
+        totalKeystrokes++;
+        const val = area.value;
+        if(val.endsWith(' ')) {
+            const input = val.trim();
+            const currentSpan = display.children[currentWordIndex];
             
-            if (inputWord === currentWordText) {
+            if(input === passageWords[currentWordIndex]) {
                 currentSpan.className = "word-span correct";
-                correctWordsCount++;
+                correctWords++;
             } else {
                 currentSpan.className = "word-span wrong";
-                wrongWordsCount++;
             }
-            
-            // Move to next word
-            currentWordIndex++;
-            
-            // Live Stats Update
-            calculateLiveStats();
 
-            // Check if passage ended
-            if (currentWordIndex < passageWords.length) {
-                // Highlight next
+            currentWordIndex++;
+            if(currentWordIndex < passageWords.length) {
                 display.children[currentWordIndex].classList.add('current-word');
-                // Clear input
                 area.value = "";
-                // Auto Scroll
-                display.children[currentWordIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                display.children[currentWordIndex].scrollIntoView({behavior:'smooth', block:'center'});
             } else {
                 finishTest();
             }
+            document.getElementById('live-wpm').innerText = Math.round(correctWords / ((300-timeLeft)/60) || 0);
         }
     };
 }
@@ -178,72 +123,35 @@ function startTimer() {
     isStarted = true;
     timer = setInterval(() => {
         timeLeft--;
-        let mins = Math.floor(timeLeft / 60);
-        let secs = timeLeft % 60;
-        document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        
-        if (timeLeft <= 0) finishTest();
+        let m = Math.floor(timeLeft/60), s = timeLeft%60;
+        document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+        if(timeLeft <= 0) finishTest();
     }, 1000);
 }
 
-// Live WPM update during test
-function calculateLiveStats() {
-    const timeSpentInMins = (maxTime - timeLeft) / 60;
-    if(timeSpentInMins === 0) return;
-
-    // Formula: Correct Words / Time
-    const wpm = Math.round(correctWordsCount / timeSpentInMins);
-    document.getElementById('live-wpm').innerText = wpm;
-}
-
-// --- RESULT CALCULATION ---
 function finishTest() {
     clearInterval(timer);
-    document.getElementById('typing-area').disabled = true;
+    const timeSpent = (300 - timeLeft) / 60 || 0.1;
+    const netWPM = Math.round(correctWords / timeSpent);
+    const accuracy = Math.round((correctWords / currentWordIndex) * 100) || 0;
 
-    // Calculations
-    const timeSpentInMins = (maxTime - timeLeft) / 60;
-    const effectiveTime = timeSpentInMins === 0 ? 0.01 : timeSpentInMins; // Avoid divide by zero
-
-    // 1. Net Speed (UPSSSC Formula-ish: Correct Words / Time)
-    const netWPM = Math.round(correctWordsCount / effectiveTime);
-
-    // 2. Gross Speed (Total Keystrokes / 5 / Time)
-    // Standard typing formula: 5 chars = 1 word
-    const grossWPM = Math.round((totalKeystrokes / 5) / effectiveTime);
-
-    // 3. Accuracy
-    const totalAttempted = correctWordsCount + wrongWordsCount;
-    const accuracy = totalAttempted === 0 ? 0 : Math.round((correctWordsCount / totalAttempted) * 100);
-
-    // 4. Pass/Fail Logic
-    let status = "FAIL";
-    let statusColor = "#e74c3c"; // Red
-
-    if (currentLanguage === 'en') {
-        if (netWPM >= 30) { status = "PASS"; statusColor = "#2ecc71"; } // Green
-    } else {
-        if (netWPM >= 25) { status = "PASS"; statusColor = "#2ecc71"; }
-    }
-
-    // --- POPULATE RESULT PAGE ---
     document.getElementById('res-wpm').innerText = netWPM;
-    document.getElementById('res-gross-wpm').innerText = grossWPM + " WPM";
+    document.getElementById('res-gross-wpm').innerText = Math.round((totalKeystrokes/5)/timeSpent) + " WPM";
     document.getElementById('res-accuracy').innerText = accuracy + "%";
-    document.getElementById('res-errors').innerText = wrongWordsCount;
+    document.getElementById('res-errors').innerText = currentWordIndex - correctWords;
     document.getElementById('res-backspaces').innerText = backspaceCount;
-    document.getElementById('res-keystrokes').innerText = totalKeystrokes;
 
     const statusBox = document.getElementById('res-status-box');
     const statusText = document.getElementById('res-status-text');
-    
-    statusText.innerText = status;
-    statusBox.style.backgroundColor = statusColor;
+    const passSpeed = currentLanguage === 'en' ? 30 : 25;
 
-    // Switch Screen
-    document.getElementById('typing-page').style.display = 'none';
-    document.getElementById('result-page').style.display = 'flex';
+    if(netWPM >= passSpeed) {
+        statusText.innerText = "PASS";
+        statusBox.style.backgroundColor = "#27ae60";
+    } else {
+        statusText.innerText = "FAIL";
+        statusBox.style.backgroundColor = "#c62828";
+    }
+
+    showPage('result-page');
 }
-
-function backToLanguage() { location.reload(); }
-function backToPassageSelection() { location.reload(); }
