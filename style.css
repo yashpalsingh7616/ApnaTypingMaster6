@@ -1,0 +1,173 @@
+/* --- LOGIN/HOME PAGE ENHANCEMENTS --- */
+#login-page {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    justify-content: center;
+}
+
+.login-container {
+    background: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    text-align: center;
+    color: #333;
+    max-width: 450px;
+    width: 90%;
+}
+
+.brand-logo {
+    font-size: 60px;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.login-box .input-group {
+    display: flex;
+    align-items: center;
+    background: #f0f2f5;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.login-box input {
+    border: none;
+    background: transparent;
+    margin-left: 15px;
+    font-size: 16px;
+    width: 100%;
+    outline: none;
+}
+
+.main-btn {
+    background: var(--secondary);
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.3s;
+}
+
+.main-btn:hover {
+    background: #219150;
+    transform: scale(1.02);
+}
+
+/* --- RESULT PAGE STYLING --- */
+.result-container {
+    background: white;
+    width: 100%;
+    max-width: 800px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.result-header {
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+.highlight-name {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.score-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.speed-circle {
+    width: 150px;
+    height: 150px;
+    border: 8px solid var(--primary);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 45px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.speed-circle small {
+    font-size: 16px;
+    color: #666;
+}
+
+.status-badge {
+    padding: 10px 30px;
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.stat-box .label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.stat-box .value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+.error-txt { color: var(--danger); }
+
+.result-actions {
+    display: flex;
+    gap: 20px;
+}
+
+.secondary-btn {
+    background: var(--gray-back);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-container {
+    animation: fadeIn 0.5s ease-out;
+}
