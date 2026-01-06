@@ -4,63 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UPSSSC Typing Master Pro</title>
-    
     <link rel="stylesheet" href="style.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Hind:wght@400;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        /* Mangal Font Fallback for Hindi Typing */
         @font-face {
             font-family: 'Mangal';
-            src: local('Mangal'), local('Arial Unicode MS'), local('Devanagari New');
+            src: local('Mangal'), local('Arial Unicode MS');
         }
     </style>
 </head>
 <body>
 
-    <div id="login-page" class="page active-page">
-        <div class="overlay"></div>
+    <div id="login-page" class="page">
         <div class="login-container">
-            <div class="brand-logo">
-                <i class="fa-solid fa-keyboard"></i>
-            </div>
+            <div class="brand-logo"><i class="fa-solid fa-keyboard"></i></div>
             <h1>Sarkari Typing Master</h1>
-            <p class="subtitle">UPSSSC & State Exam Special</p>
-            
+            <p>UPSSSC & State Exam Special</p>
             <div class="login-box">
-                <div class="input-group">
-                    <i class="fa-solid fa-user"></i>
-                    <input type="text" id="user-name" placeholder="Enter Candidate Name">
-                </div>
-                <button class="main-btn wobble-vertical" onclick="handleLogin()">
-                    Start Practice <i class="fa-solid fa-arrow-right"></i>
-                </button>
+                <input type="text" id="user-name" placeholder="Enter Candidate Name">
+                <button class="main-btn" onclick="handleLogin()">Start Practice</button>
             </div>
-            <p class="footer-text">Designed for Hindi (Mangal) & English Speed Test</p>
         </div>
     </div>
 
     <div id="selection-page" class="page" style="display:none;">
-        <h2 class="section-title">Select Language</h2>
+        <h2 class="section-title">CHOOSE YOUR LANGUAGE</h2>
         <div class="language-options">
-            
             <div class="lang-card" onclick="openModule('en')">
-                <div class="card-icon en-bg"><i class="fa-solid fa-font"></i></div>
-                <h3>English</h3>
-                <p class="target-text">Target: 30 WPM</p>
-                <button class="select-btn">Start English</button>
+                <div class="card-icon">EN</div>
+                <h3>ENGLISH</h3>
+                <p>Target: 30 WPM</p>
+                <button class="select-btn">Select English</button>
             </div>
-
             <div class="lang-card" onclick="openModule('hi')">
-                <div class="card-icon hi-bg"><i class="fa-solid fa-language"></i></div>
-                <h3>Hindi</h3>
-                <p class="target-text">Mangal Inscript (25 WPM)</p>
-                <button class="select-btn">Start Hindi</button>
+                <div class="card-icon">हिं</div>
+                <h3>HINDI</h3>
+                <p>Mangal Inscript (25 WPM)</p>
+                <button class="select-btn">Select Hindi</button>
             </div>
-
         </div>
     </div>
 
@@ -71,12 +53,12 @@
         </nav>
         <div class="content-wrapper">
             <div class="admin-section">
-                <h3><i class="fa-solid fa-list"></i> Select Passage</h3>
+                <h3>Select Passage</h3>
                 <div id="en-list" class="passage-list"></div>
             </div>
             <div class="user-section">
-                <h3><i class="fa-solid fa-pen-nib"></i> Custom Text</h3>
-                <textarea id="en-custom" placeholder="Paste any English paragraph here to practice..."></textarea>
+                <h3>Custom Text</h3>
+                <textarea id="en-custom" placeholder="Paste English text..."></textarea>
                 <button class="main-btn" onclick="startCustom('en')">Start Typing</button>
             </div>
         </div>
@@ -85,37 +67,32 @@
     <div id="hindi-page" class="page" style="display:none;">
         <nav class="sub-nav">
             <button class="back-link" onclick="backToLanguage()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <h2>Hindi (Mangal) Module</h2>
+            <h2>Hindi Module</h2>
         </nav>
         <div class="content-wrapper">
             <div class="admin-section">
-                <h3><i class="fa-solid fa-list"></i> Select Passage</h3>
+                <h3>Select Passage</h3>
                 <div id="hi-list" class="passage-list"></div>
             </div>
             <div class="user-section">
-                <h3><i class="fa-solid fa-pen-nib"></i> Custom Text</h3>
-                <textarea id="hi-custom" class="hindi-font" placeholder="Yahan Hindi text paste karein..."></textarea>
+                <h3>Custom Text</h3>
+                <textarea id="hi-custom" class="hindi-font" placeholder="Hindi text paste karein..."></textarea>
                 <button class="main-btn" onclick="startCustom('hi')">Start Typing</button>
             </div>
         </div>
     </div>
 
     <div id="typing-page" class="page" style="display:none;">
-        <nav class="typing-nav">
-            <button class="abort-btn" onclick="backToPassageSelection()">Abort Test</button>
-            <div class="timer-box">
-                <i class="fa-regular fa-clock"></i> <span id="timer">05:00</span>
-            </div>
+        <nav class="sub-nav">
+            <button class="back-link" onclick="backToPassageSelection()">Cancel</button>
+            <div id="timer" class="timer-box">05:00</div>
         </nav>
-        
         <div class="typing-container">
-            <div id="text-display" class="text-box unselectable"></div>
-            
-            <textarea id="typing-area" placeholder="Start typing here..." spellcheck="false" autocomplete="off"></textarea>
-            
+            <div id="text-display" class="text-box"></div>
+            <textarea id="typing-area" placeholder="Start typing..." spellcheck="false"></textarea>
             <div class="live-stats">
-                <div class="stat">Net Speed: <span id="live-wpm">0</span> WPM</div>
-                <div class="stat">Backspaces: <span id="back-count">0</span></div>
+                <span>Net WPM: <b id="live-wpm">0</b></span>
+                <span>Backspaces: <b id="back-count">0</b></span>
             </div>
         </div>
     </div>
@@ -124,54 +101,24 @@
         <div class="result-container">
             <div class="result-header">
                 <h2>Test Report</h2>
-                <p>Candidate: <span id="res-candidate-name" class="highlight-name">Student</span></p>
+                <p>Candidate: <span id="res-candidate-name" class="highlight-name"></span></p>
             </div>
-
             <div class="score-card">
-                <div class="speed-circle">
-                    <span id="res-wpm">0</span>
-                    <small>WPM</small>
-                </div>
-                <div class="status-badge" id="res-status-box">
-                    <span id="res-status-text">PENDING</span>
-                </div>
+                <div class="speed-circle"><span id="res-wpm">0</span><small>WPM</small></div>
+                <div class="status-badge" id="res-status-box"><span id="res-status-text">--</span></div>
             </div>
-
             <div class="stats-grid">
-                <div class="stat-box">
-                    <span class="label">Gross Speed</span>
-                    <span class="value" id="res-gross-wpm">0</span>
-                </div>
-                <div class="stat-box">
-                    <span class="label">Accuracy</span>
-                    <span class="value" id="res-accuracy">0%</span>
-                </div>
-                <div class="stat-box">
-                    <span class="label">Total Errors</span>
-                    <span class="value error-txt" id="res-errors">0</span>
-                </div>
-                <div class="stat-box">
-                    <span class="label">Backspaces</span>
-                    <span class="value" id="res-backspaces">0</span>
-                </div>
-                <div class="stat-box">
-                    <span class="label">Keystrokes</span>
-                    <span class="value" id="res-keystrokes">0</span>
-                </div>
+                <div class="stat-box"><span class="label">Gross Speed</span><span class="value" id="res-gross-wpm">0</span></div>
+                <div class="stat-box"><span class="label">Accuracy</span><span class="value" id="res-accuracy">0%</span></div>
+                <div class="stat-box"><span class="label">Errors</span><span class="value" id="res-errors">0</span></div>
+                <div class="stat-box"><span class="label">Backspaces</span><span class="value" id="res-backspaces">0</span></div>
             </div>
-
             <div class="result-actions">
-                <button class="secondary-btn" onclick="location.reload()">
-                    <i class="fa-solid fa-house"></i> Home
-                </button>
-                <button class="main-btn" onclick="backToPassageSelection()">
-                    <i class="fa-solid fa-rotate-right"></i> Retake Test
-                </button>
+                <button class="main-btn" onclick="goHome()">Go Home</button>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
-
 </body>
 </html>
